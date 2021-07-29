@@ -26,7 +26,7 @@ func verifyHandler(ctx context.Context, e *common.TopicEvent) (retry bool, err e
 }
 
 func main() {
-	s, err := daprd.NewService(":50001")
+	s, err := daprd.NewService(":3000")
 	if err != nil {
 		log.Fatalf("failed to start the server: %v", err)
 	}
