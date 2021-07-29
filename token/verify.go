@@ -17,7 +17,7 @@ func Verify(token string) (string, error) {
 		return "", err
 	}
 
-	if now.Sub(newJsonToken.Expiration) <= 0 {
+	if newJsonToken.Expiration.Sub(now) <= 0 {
 		return "", fmt.Errorf("The token has expired.")
 	}
 
