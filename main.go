@@ -1,7 +1,49 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"log"
+
+	"github.com/dapr/go-sdk/service/common"
+	daprd "github.com/dapr/go-sdk/service/grpc"
+)
+
+func createHandler(ctx context.Context, in *common.InvocationEvent) (out *common.Content, err error) {
+	log.Printf("echo - ContentType:%s, Verb:%s, QueryString:%s, %+v", in.ContentType, in.Verb, in.QueryString, string(in.Data))
+	// do something with the invocation here
+	out = &common.Content{
+		Data:        in.Data,
+		ContentType: in.ContentType,
+		DataTypeURL: in.DataTypeURL,
+	}
+	return
+}
+
+func verifyHandler(ctx context.Context, e *common.TopicEvent) (retry bool, err error) {
+	log.Printf("event - PubsubName:%s, Topic:%s, ID:%s, Data: %v", e.PubsubName, e.Topic, e.ID, e.Data)
+	// do something with the event
+	return true, nil
+}
 
 func main() {
-	fmt.Println("Hello World")
+	s, err := daprd.NewService(":50001")
+	if err != nil {
+		log.Fatalf("failed to start the server: %v", err)
+	}
+
+	if err := s.AddServiceInvocationHandler("create", createHandler); err != nil {
+		log.Fatalf("error adding invocation handler: %v", err)
+	}
+
+	sub := &common.Subscription{
+		PubsubName: "messages",
+		Topic:      "topic1",
+	}
+	if err := s.AddTopicEventHandler(sub, verifyHandler); err != nil {
+		log.Fatalf("error adding topic subscription: %v", err)
+	}
+
+	if err := s.Start(); err != nil {
+		log.Fatalf("server error: %v", err)
+	}
 }
