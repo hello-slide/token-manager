@@ -7,6 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY ./main.go ./
+COPY ./token ./token/
 
 ARG CGO_ENABLED=0
 ARG GOOS=linux
