@@ -4,8 +4,10 @@ import (
 	"context"
 	"log"
 
+	dapr "github.com/dapr/go-sdk/client"
 	"github.com/dapr/go-sdk/service/common"
 	daprd "github.com/dapr/go-sdk/service/grpc"
+	"github.com/hello-slide/token-manager/token"
 )
 
 func createHandler(ctx context.Context, in *common.InvocationEvent) (out *common.Content, err error) {
@@ -23,6 +25,15 @@ func verifyHandler(ctx context.Context, e *common.TopicEvent) (retry bool, err e
 	log.Printf("event - PubsubName:%s, Topic:%s, ID:%s, Data: %v", e.PubsubName, e.Topic, e.ID, e.Data)
 	// do something with the event
 	return true, nil
+}
+
+func init() {
+	client, err := dapr.NewClient()
+	if err != nil {
+		panic(err)
+	}
+	ctx := context.Background()
+	token.GetKey(&client, &ctx)
 }
 
 func main() {
