@@ -53,7 +53,7 @@ func init() {
 }
 
 func main() {
-	s, err := daprd.NewService(":3000")
+	s, err := daprd.NewService(":50001")
 	if err != nil {
 		log.Fatalf("failed to start the server: %v", err)
 	}

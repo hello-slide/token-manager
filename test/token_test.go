@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hello-slide/token-manager/token"
@@ -19,6 +20,10 @@ func TestCheckToken(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	fmt.Println(generateToken)
+	fmt.Println(newData)
+	fmt.Println(data)
 
 	if newData != data {
 		t.Fatal("The compounded data is different.")
