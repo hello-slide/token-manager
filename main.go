@@ -11,12 +11,14 @@ import (
 	"github.com/hello-slide/token-manager/token"
 )
 
+var Key []byte
+
 func createHandler(ctx context.Context, in *common.InvocationEvent) (*common.Content, error) {
 	if in.ContentType != "text/plain" {
 		return nil, fmt.Errorf("The content-type must be `text/plain.`")
 	}
 
-	resultToken, err := token.Create(string(in.Data))
+	resultToken, err := token.Create(string(in.Data), Key)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +34,7 @@ func verifyHandler(ctx context.Context, in *common.InvocationEvent) (out *common
 		return nil, fmt.Errorf("The content-type must be `text/plain.`")
 	}
 
-	resultToken, err := token.Verify(string(in.Data))
+	resultToken, err := token.Verify(string(in.Data), Key)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +51,11 @@ func init() {
 		panic(err)
 	}
 	ctx := context.Background()
-	token.GetKey(&client, &ctx)
+	getKey, err := token.GetKey(&client, &ctx)
+	if err != nil {
+		panic(err)
+	}
+	Key = getKey
 }
 
 func main() {

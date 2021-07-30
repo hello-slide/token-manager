@@ -7,12 +7,12 @@ import (
 	"github.com/o1egl/paseto"
 )
 
-func Verify(token string) (string, error) {
+func Verify(token string, key []byte) (string, error) {
 	var newJsonToken paseto.JSONToken
 	var newFooter string
 	now := time.Now()
 
-	err := paseto.NewV2().Decrypt(token, Key, &newJsonToken, &newFooter)
+	err := paseto.NewV2().Decrypt(token, key, &newJsonToken, &newFooter)
 	if err != nil {
 		return "", err
 	}

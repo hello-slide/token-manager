@@ -8,15 +8,15 @@ import (
 )
 
 func TestCheckToken(t *testing.T) {
-	token.Key = []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
+	key := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 	data := "hoge"
 
-	generateToken, err := token.Create(data)
+	generateToken, err := token.Create(data, key)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	newData, err := token.Verify(generateToken)
+	newData, err := token.Verify(generateToken, key)
 	if err != nil {
 		t.Fatal(err)
 	}

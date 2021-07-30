@@ -17,20 +17,17 @@ const (
 	KeySecret   = "token-common-key"
 )
 
-var Key []byte
-
-func GetKey(client *client.Client, ctx *context.Context) error {
+func GetKey(client *client.Client, ctx *context.Context) ([]byte, error) {
 	opt := map[string]string{
 		"version": "2",
 	}
 	secret, err := (*client).GetSecret(*ctx, SecretStore, KeySecret, opt)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	getKey := []byte(secret[KeySecret])
 	if len(getKey) != 32 {
-		return fmt.Errorf("key value must be 32 bytes.")
+		return nil, fmt.Errorf("key value must be 32 bytes.")
 	}
-	Key = getKey
-	return nil
+	return getKey, nil
 }
