@@ -28,5 +28,20 @@ func TestCheckToken(t *testing.T) {
 	if newData != data {
 		t.Fatal("The compounded data is different.")
 	}
+}
 
+func TestDifferentKey(t *testing.T) {
+	key1 := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
+	key2 := []byte("YELLOW SUBMARINE, BLACK WIZARDRA")
+	data := "hoge"
+
+	generateToken, err := token.Create(data, key1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = token.Verify(generateToken, key2)
+	if err == nil {
+		t.Fatal(err)
+	}
 }
