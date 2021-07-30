@@ -2,6 +2,7 @@ package token
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/dapr/go-sdk/client"
 )
@@ -26,6 +27,10 @@ func GetKey(client *client.Client, ctx *context.Context) error {
 	if err != nil {
 		return err
 	}
-	Key = []byte(secret[KeySecret])
+	getKey := []byte(secret[KeySecret])
+	if len(getKey) != 32 {
+		return fmt.Errorf("key value must be 32 bytes.")
+	}
+	Key = getKey
 	return nil
 }
