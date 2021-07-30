@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	dapr "github.com/dapr/go-sdk/client"
@@ -10,21 +11,36 @@ import (
 	"github.com/hello-slide/token-manager/token"
 )
 
-func createHandler(ctx context.Context, in *common.InvocationEvent) (out *common.Content, err error) {
-	log.Printf("echo - ContentType:%s, Verb:%s, QueryString:%s, %+v", in.ContentType, in.Verb, in.QueryString, string(in.Data))
-	// do something with the invocation here
-	out = &common.Content{
-		Data:        in.Data,
-		ContentType: in.ContentType,
-		DataTypeURL: in.DataTypeURL,
+func createHandler(ctx context.Context, in *common.InvocationEvent) (*common.Content, error) {
+	if in.ContentType != "text/plain" {
+		return nil, fmt.Errorf("The content-type must be `text/plain.`")
 	}
-	return
+
+	resultToken, err := token.Create(string(in.Data))
+	if err != nil {
+		return nil, err
+	}
+
+	return &common.Content{
+		Data:        []byte(resultToken),
+		ContentType: "text/plain",
+	}, nil
 }
 
-func verifyHandler(ctx context.Context, e *common.TopicEvent) (retry bool, err error) {
-	log.Printf("event - PubsubName:%s, Topic:%s, ID:%s, Data: %v", e.PubsubName, e.Topic, e.ID, e.Data)
-	// do something with the event
-	return true, nil
+func verifyHandler(ctx context.Context, in *common.InvocationEvent) (out *common.Content, err error) {
+	if in.ContentType != "text/plain" {
+		return nil, fmt.Errorf("The content-type must be `text/plain.`")
+	}
+
+	resultToken, err := token.Verify(string(in.Data))
+	if err != nil {
+		return nil, err
+	}
+
+	return &common.Content{
+		Data:        []byte(resultToken),
+		ContentType: "text/plain",
+	}, nil
 }
 
 func init() {
@@ -46,12 +62,8 @@ func main() {
 		log.Fatalf("error adding invocation handler: %v", err)
 	}
 
-	sub := &common.Subscription{
-		PubsubName: "messages",
-		Topic:      "topic1",
-	}
-	if err := s.AddTopicEventHandler(sub, verifyHandler); err != nil {
-		log.Fatalf("error adding topic subscription: %v", err)
+	if err := s.AddServiceInvocationHandler("verify", verifyHandler); err != nil {
+		log.Fatalf("error adding invocation handler: %v", err)
 	}
 
 	if err := s.Start(); err != nil {
