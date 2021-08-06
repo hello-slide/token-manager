@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
-	dapr "github.com/dapr/go-sdk/client"
 	"github.com/dapr/go-sdk/service/common"
 	daprd "github.com/dapr/go-sdk/service/grpc"
 	"github.com/hello-slide/token-manager/token"
 )
 
-var Key []byte
+var Key []byte = []byte(os.Getenv("PUBLIC_KEY"))
 
 func createHandler(ctx context.Context, in *common.InvocationEvent) (*common.Content, error) {
 	if in.ContentType != "text/plain" {
@@ -43,19 +43,6 @@ func verifyHandler(ctx context.Context, in *common.InvocationEvent) (out *common
 		Data:        []byte(resultToken),
 		ContentType: "text/plain",
 	}, nil
-}
-
-func init() {
-	client, err := dapr.NewClient()
-	if err != nil {
-		panic(err)
-	}
-	ctx := context.Background()
-	getKey, err := token.GetKey(&client, &ctx)
-	if err != nil {
-		panic(err)
-	}
-	Key = getKey
 }
 
 func main() {
